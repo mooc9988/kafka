@@ -9,43 +9,30 @@ jobs:
   paths-filter:
     runs-on: ubuntu-latest
     outputs:
-      java-scala: ${{ steps.filter.outputs.java-scala }}
+      es-unit-test: ${{ steps.filter.outputs.es-unit-test }}
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
         id: filter
         with:
           filters: |
-            java-scala:
+            core-unit-test:
               - '.github/workflows/**'
-              - 'clients/**'
-              - 'connect/**'
               - 'core/**'
-              - 'examples/src/**'
-              - 'generator/src/**'
-              - 'group-coordinator/**'
-              - 'jmh-benchmarks/src/**'
-              - 'log4j-appender/src/**'
               - 'metadata/**'
-              - 'raft/src/**'
-              - 'server-common/src/**'
-              - 'shell/src/**'
-              - 'storage/**'
-              - 'streams/**'
-              - 'trogdor/**'
-  java-scala-build:
+  es-unit-test:
     needs: [paths-filter]
-    if: ${{ needs.paths-filter.outputs.java-scala == 'true' || github.event_name == 'push' }}
+    if: ${{ needs.paths-filter.outputs.es-unit-test == 'true' || github.event_name == 'push' }}
     uses: ./.github/workflows/es_unit_tests.yml
   build-result:
     runs-on: ubuntu-latest
-    needs: [java-scala-build]
+    needs: [es-unit-test]
     if: ${{ always() }}
     steps:
       - uses: actions/checkout@v3
       - name: Collect build result
         run: |
-          if echo java-scala-${{ needs.java-scala-build.result }} | grep -E 'cancelled|failure' -o > null
+          if echo es-unit-test-${{ needs.es-unit-test.result }} | grep -E 'cancelled|failure' -o > null
           then
             echo "There are failed/cancelled builds"
             exit 1
