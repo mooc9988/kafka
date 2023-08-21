@@ -16,7 +16,7 @@ jobs:
         id: filter
         with:
           filters: |
-            core-unit-test:
+            es-unit-test:
               - '.github/workflows/**'
               - 'core/**'
               - 'metadata/**'
